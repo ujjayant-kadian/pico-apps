@@ -1,9 +1,13 @@
+/*
+Ujjayant Kadian
+Lab 01- Blink LED
+*/
 #include "pico/stdlib.h"
 
 uint LED_STATE = 0;
 
+//Function to blink led - it takes the led pin and the delay as its arguement.
 void blink_led (uint LED_PIN, uint LED_DELAY) {
-    
     
     gpio_put(LED_PIN, LED_STATE);
     sleep_ms(LED_DELAY);
