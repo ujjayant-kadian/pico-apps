@@ -54,7 +54,7 @@ led_set_on:
     movs    r1, #LED_VALUE_ON           @ The LED is currently "off" so we want to turn it "on"
 led_set_state:
     movs    r0, #LED_GPIO_PIN           @ Set the LED GPIO pin number to r0 for use by asm_gpio_put
-    bl      asm_gpio_put                @ Update the the value of the LED GPIO pin (based on value in r1)
+    bl      asm_gpio_put                @ Update the value of the LED GPIO pin (based on value in r1)
     ldr     r0, =SLEEP_TIME             @ Set the value of SLEEP_TIME we want to wait for (wait for the state to settle)
     bl      sleep_ms                    @ Sleep until SLEEP_TIME has elapsed then go back to the loop
     pop     {pc}                        @ Pop the link register from the stack to the program counter
