@@ -213,7 +213,7 @@ btn_down:
 
         ldr     r2, =ltimer                    @ Load address of ltimer into r2
         ldr     r1, [r2]                       @ Load value of the current time delay into r1
-        movs    r4, r1, lsr #1                 @ Shift bits to the right by 1 to half the current time delay
+        movs    r4, r1, lsl #1                 @ Shift bits to the right by 1 to double the current time delay - decrease speed
         ldr     r2, =ltimer                    @ Load address of ltimer into r2
         str     r4, [r2]                       @ Store the new time delay in ltimer
         b       gpio_isr_done                  @ Proceed to end of the subroutine 
@@ -223,7 +223,7 @@ btn_up:
 
         ldr     r2, =ltimer                    @ Load address of ltimer into r2
         ldr     r1, [r2]                       @ Load value of the current time delay into r1
-        movs    r0, r1, lsl #1                 @ Shift bits to the left by 1 to double the current time delay
+        movs    r0, r1, lsr #1                 @ Shift bits to the left by 1 to half the current time delay - increase speed
         ldr     r2, =ltimer                    @ Load address of ltimer into r2
         str     r0, [r2]                       @ Store the new time delay in ltimer
         b       gpio_isr_done                  @ Proceed to end of the subroutine 
