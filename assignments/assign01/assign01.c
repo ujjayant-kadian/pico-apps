@@ -1,3 +1,8 @@
+/*
+Ujjayant Kadian
+22330954
+*/
+
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
@@ -33,7 +38,7 @@ void asm_gpio_set_irq(uint pin) {
 // Main entry point of the application
 int main() {
     stdio_init_all();              // Initialise all basic IO
-    printf("Assignment #2...\n");  // Basic print to console
+    printf("Assignment #1...\n");  // Basic print to console
     main_asm();                    // Jump into the ASM code
     return 0;                      // Application return code
 }
