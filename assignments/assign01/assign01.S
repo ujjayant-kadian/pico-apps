@@ -34,10 +34,19 @@
 
 @ Entry point to the ASM portion of the program
 main_asm:
-        ldr     r0, =msg
-        bl      printf
+        bl      init_gpio_led         @ Go to subroutine for initialising GPIO LED pin
+
 main_loop:
         b       main_loop
+
+init_gpio_led:
+        push    {lr}
+        movs    r0, #GPIO_LED_PIN
+        bl      asm_gpio_init
+        movs    r0, #GPIO_LED_PIN
+        movs    r1, #GPIO_DIR_OUT
+        bl      asm_gpio_set_dir
+        pop     {pc}
 
 .align 4
 msg:    .asciz "Hello World!\n"
