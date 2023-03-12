@@ -70,7 +70,7 @@ init_gpio_btns:
         movs    r0, #GPIO_BTN_EN      @ This value is the GPIO enter button pin on the PI PICO board
         bl      asm_gpio_init         @ Call the subroutine to initialise the GPIO pin specified by r0
         movs    r0, #GPIO_BTN_EN      @ This value is the GPIO enter button pin on the PI PICO board
-        movs    r0, #GPIO_DIR_IN      @ We want this GPIO pin to be setup as an input pin
+        movs    r1, #GPIO_DIR_IN      @ We want this GPIO pin to be setup as an input pin
         bl      asm_gpio_set_dir      @ Call the subroutine to set the GPIO pin specified by r0 to state specified by r1
         movs    r0, #GPIO_BTN_EN      @ This value is the GPIO enter button pin on the PI PICO board
         bl      asm_gpio_set_irq      @ Call the subroutine to enable interrupts at the falling edge for the button
@@ -145,7 +145,7 @@ led_set_on:
         str     r1, [r2]                       @ Store the current state of LED in lstate
         b       led_set_state                  @ Set the LED state
 led_set_off:
-        movs    r1, #LED_VAL_ON                @ Move the LOW value (0) into r1
+        movs    r1, #LED_VAL_OFF                @ Move the LOW value (0) into r1
         ldr     r2, =lstate                    @ Load the address of lstate
         str     r1, [r2]                       @ Store the current state of LED in lstate
 led_set_state:
