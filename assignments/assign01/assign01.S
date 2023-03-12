@@ -89,7 +89,7 @@ init_gpio_btns:
 set_alarm:
 
         ldr     r2, =TIMER_BASE                @ Load the address pointed to by TIMER_BASE into r2
-        ldr     r1, =1                         @ Load 1 into r1 to set TIMER_INTE HIGH
+        movs    r1, #1                         @ Move 1 into r1 to set TIMER_INTE HIGH
         str     r1, [r2, #TIMER_INTE_OFFSET]   @ Store r1 to address of TIMER_BASE with offset of TIMER_INTE_OFFSET - to enable alarm timer interrupts
 
         ldr     r1, [r2, #TIMER_TIMELR_OFFSET] @ Load r1 with the value at address of TIMER_BASE with offset of TIMER_TIMELR_OFFSET - load current timer count in r1
@@ -99,6 +99,23 @@ set_alarm:
 
         str     r1, [r2, #TIMER_ALARM0_OFFSET] @ Store this value at TIMER_BASE + TIMER_ALARM0_OFFSET
         bx      lr                             @ Return to main_loop
+
+@ Subroutine used to install the alarm interrupt service handler
+install_alrm_isr:
+        ldr     r2, =(PPB_BASE + M0PLUS_VTOR_OFFSET)    @ Load r2 with address of PPB_BASE added to M0PLUS_VTOR_OFFSET - load address of vector table in r2
+        ldr     r1, [r2]                                @ Load r1 with the value at address stored in r2
+        movs    r2, #ALRM_ISR_OFFSET                    @ Move the ALRM_ISR_OFFSET in r2
+        add     r2, r1                                  @ Add the vector table address and the offset and store it in r2
+        ldr     r0, =alarm_isr                          @ Load address of alarm service handler into r0
+        str     r0, [r2]                                @ Store the address of alarm servuce handler to correct offset in vector table
+
+        movs    r0, #1                                  @ Move 1 into r0 to set values high in the corresponding registers
+        ldr     r1, =(PPB_BASE+M0PLUS_NVIC_ICPR_OFFSET) @ Load r1 with address of PPB_BASE added to M0PLUS_NVIC_ICPR_OFFSET
+        str     r0, [r1]                                @ Store 1 in this register address to disable the alarm interrupt requests
+        ldr     r1, =(PPB_BASE+M0PLUS_NVIC_ISER_OFFSET) @ Load r1 with address of PPB_BASE added to M0PLUS_NVIC_ISER_OFFSET
+        str     r0, [r1]                                @ Store 1 in this register to enable the alarm interrupt requests
+	
+	bx      lr                                      @ Return to main_asm
 
 @ Alarm interrupt service handler routine
 .thumb_func @ Required for all interrupt service routines
@@ -114,6 +131,7 @@ alarm_isr:
         movs    r3, #0                         @ For comparing enable_state
         cmp     r1, r3                         @ If the current alarm enable state is low then
         beq     alrm_isr_done                  @ No need to fire an interrupt - LED state should remain the same, OTHERWISE
+
         ldr     r2, =lstate                    @ Load the address of lstate into r2
         ldr     r1, [r2]                       @ Load r1 with the value at address stored in r2
         movs    r3, #1                         @ For comparing led state
@@ -133,6 +151,7 @@ led_set_state:
         bl      asm_gpio_put                   @ Update the value of the LED GPIO pin (based on value in r1)
 alrm_isr_done:
         pop     {pc}                           @ Pop the link register from the stack to the program counter - return from the interrupt service
+
 
 
 
