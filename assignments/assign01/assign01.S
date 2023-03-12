@@ -87,7 +87,6 @@ init_gpio_btns:
 
 @ Set alarm with the corresponding delay
 set_alarm:
-
         ldr     r2, =TIMER_BASE                @ Load the address pointed to by TIMER_BASE into r2
         movs    r1, #1                         @ Move 1 into r1 to set TIMER_INTE HIGH
         str     r1, [r2, #TIMER_INTE_OFFSET]   @ Store r1 to address of TIMER_BASE with offset of TIMER_INTE_OFFSET - to enable alarm timer interrupts
@@ -121,6 +120,9 @@ install_alrm_isr:
 .thumb_func @ Required for all interrupt service routines
 alrm_isr:
         push    {lr}                           @ Store the link register to the stack (as we call subroutines)
+
+        ldr     r0, =alrm_event                @ Load the statement to be displayed
+        bl      printf                         @ Print the statement
 
         ldr     r2, =TIMER_BASE                @ Load the address pointed to by TIMER_BASE into r2
         movs    r1, #1                         @ Load 1 into r1 to set the ICPR (interrupt clear-pending register) high
@@ -197,12 +199,18 @@ gpio_isr:
         
         b       gpio_isr_done                                       @ Otherwise, disable interrupt requests
 ltimer_reset:
+        ldr     r0, =reset_speed               @ Load the statement to be displayed
+        bl      printf                         @ Print the statement
+
         ldr     r1, =DFLT_ALARM_TIME           @ Load DFLT_ALARM_TIME into r1
         ldr     r2, =ltimer                    @ Load address of ltimer into r2
         str     r1, [r2]                       @ Store the default alarm time (DFLT_ALARM_TIME) in ltimer
         b       gpio_isr_done                  @ Proceed to end of the subroutine 
 
 btn_down: 
+        ldr     r0, =down_btn_pressed          @ Load the statement to be displayed
+        bl      printf                         @ Print the statement
+
         ldr     r2, =ltimer                    @ Load address of ltimer into r2
         ldr     r1, [r2]                       @ Load value of the current time delay into r1
         movs    r4, r1, lsr #1                 @ Shift bits to the right by 1 to half the current time delay
@@ -210,6 +218,9 @@ btn_down:
         str     r4, [r2]                       @ Store the new time delay in ltimer
         b       gpio_isr_done                  @ Proceed to end of the subroutine 
 btn_up: 
+        ldr     r0, =up_btn_pressed            @ Load the statement to be displayed
+        bl      printf                         @ Print the statement
+
         ldr     r2, =ltimer                    @ Load address of ltimer into r2
         ldr     r1, [r2]                       @ Load value of the current time delay into r1
         movs    r0, r1, lsl #1                 @ Shift bits to the left by 1 to double the current time delay
@@ -217,6 +228,9 @@ btn_up:
         str     r0, [r2]                       @ Store the new time delay in ltimer
         b       gpio_isr_done                  @ Proceed to end of the subroutine 
 btn_enter:
+        ldr     r0, =enter_btn_pressed         @ Load the statement to be displayed
+        bl      printf                         @ Print the statement
+
         ldr     r2, =enter_state               @ Load address of the enter_state into r2
         ldr     r1, [r2]                       @ Load value of the current enter_state into r1
         movs    r3, #1                         @ To check if current enter_state is 1
@@ -237,7 +251,11 @@ gpio_isr_done:
 
 
 .align 4
-msg:    .asciz "Hello World!\n"
+reset_speed:          .asciz "Speed Reset!\n"
+alrm_event:           .asciz "Alarm Event Occurred!\n"
+enter_btn_pressed:    .asciz "Enter Button Pressed! Flashing behaviour toggled\n"
+up_btn_pressed:       .asciz "Up Button Pressed! Flashing speed doubled\n"
+down_btn_pressed:     .asciz "Down Button Pressed! Flashing speed halved\n"
 
 .data
 lstate:        .word   DFLT_STATE_STRT
