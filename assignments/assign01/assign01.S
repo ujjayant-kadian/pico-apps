@@ -35,17 +35,48 @@
 @ Entry point to the ASM portion of the program
 main_asm:
         bl      init_gpio_led         @ Go to subroutine for initialising GPIO LED pin
-
+        bl      init_gpio_btns        @ Go to subroutine for initilaising the required GPIO pins
 main_loop:
         b       main_loop
 
 init_gpio_led:
         push    {lr}
+
         movs    r0, #GPIO_LED_PIN
         bl      asm_gpio_init
         movs    r0, #GPIO_LED_PIN
         movs    r1, #GPIO_DIR_OUT
         bl      asm_gpio_set_dir
+
+        pop     {pc}
+
+init_gpio_btns:
+        push    {lr}
+
+        movs    r0, #GPIO_BTN_DN
+        bl      asm_gpio_init
+        movs    r0, #GPIO_BTN_DN
+        movs    r1, #GPIO_DIR_IN
+        bl      asm_gpio_set_dir
+        movs    r0, #GPIO_BTN_DN
+        bl      asm_gpio_set_irq
+
+        movs    r0, #GPIO_BTN_EN
+        bl      asm_gpio_init
+        movs    r0, #GPIO_BTN_EN
+        movs    r0, #GPIO_DIR_IN
+        bl      asm_gpio_set_dir
+        movs    r0, #GPIO_BTN_EN
+        bl      asm_gpio_set_irq
+
+        movs    r0, #GPIO_BTN_UP
+        bl      asm_gpio_init
+        movs    r0, #GPIO_BTN_UP
+        movs    r1, #GPIO_DIR_IN
+        bl      asm_gpio_set_dir
+        movs    r0, #GPIO_BTN_UP
+        bl      asm_gpio_set_irq
+
         pop     {pc}
 
 .align 4
