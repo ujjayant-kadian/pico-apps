@@ -87,20 +87,63 @@ init_gpio_btns:
 
 @ Set alarm with the corresponding delay
 set_alarm:
-        @ Enable the alarm timer interrupts
+
         ldr     r2, =TIMER_BASE                @ Load the address pointed to by TIMER_BASE into r2
         ldr     r1, =1                         @ Load 1 into r1 to set TIMER_INTE HIGH
-        str     r1, [r2, #TIMER_INTE_OFFSET]   @ store r1 to address of TIMER_BASE with offset of TIMER_INTE_OFFSET - to enable alarm timer interrupts
-        @ Get the current timer count and add time delay
-        ldr     r1, [r2, #TIMER_TIMELR_OFFSET] @ Load r1 with address of TIMER_BASE with offset of TIMER_TIMELR_OFFSET - load current timer count in r1
+        str     r1, [r2, #TIMER_INTE_OFFSET]   @ Store r1 to address of TIMER_BASE with offset of TIMER_INTE_OFFSET - to enable alarm timer interrupts
+
+        ldr     r1, [r2, #TIMER_TIMELR_OFFSET] @ Load r1 with the value at address of TIMER_BASE with offset of TIMER_TIMELR_OFFSET - load current timer count in r1
         ldr     r3, =ltimer                    @ Load address of default alarm timeout into r3
         ldr     r0, [r3]                       @ Load the value stored in r3 into r0
         add     r1, r0                         @ Add default alarm timeout to current timer count - add the time delay
+
         str     r1, [r2, #TIMER_ALARM0_OFFSET] @ Store this value at TIMER_BASE + TIMER_ALARM0_OFFSET
         bx      lr                             @ Return to main_loop
+
+@ Alarm interrupt service handler routine
+.thumb_func @ Required for all interrupt service routines
+alarm_isr:
+        push    {lr}                           @ Store the link register to the stack (as we call subroutines)
+
+        ldr     r2, =TIMER_BASE                @ Load the address pointed to by TIMER_BASE into r2
+        movs    r1, #1                         @ Load 1 into r1 to set the ICPR (interrupt clear-pending register) high
+        str     r1, [r2, #TIMER_INTR_OFFSET]   @ Store r1 to address of TIMER_BASE with offset of TIMER_INTR_OFFSET - to clear pending alarm timer interrupts
+
+        ldr     r2, =enable_state              @ Load the address of enable_state into r2
+        ldr     r1, [r2]                       @ Load r1 with the value at address stored in r2
+        movs    r3, #0                         @ For comparing enable_state
+        cmp     r1, r3                         @ If the current alarm enable state is low then
+        beq     alrm_isr_done                  @ No need to fire an interrupt - LED state should remain the same, OTHERWISE
+        ldr     r2, =lstate                    @ Load the address of lstate into r2
+        ldr     r1, [r2]                       @ Load r1 with the value at address stored in r2
+        movs    r3, #1                         @ For comparing led state
+        cmp     r1, r3                         @ If the current led state is high then turn off the led
+        beq     led_set_off
+led_set_on:
+        movs    r1, #LED_VAL_ON                @ Move the HIGH value (1) into r1
+        ldr     r2, =lstate                    @ Load the address of lstate
+        str     r1, [r2]                       @ Store the current state of LED in lstate
+        b       led_set_state                  @ Set the LED state
+led_set_off:
+        movs    r1, #LED_VAL_ON                @ Move the LOW value (0) into r1
+        ldr     r2, =lstate                    @ Load the address of lstate
+        str     r1, [r2]                       @ Store the current state of LED in lstate
+led_set_state:
+        movs    r0, #GPIO_LED_PIN              @ This value is the GPIO LED pin on the PI PICO board
+        bl      asm_gpio_put                   @ Update the value of the LED GPIO pin (based on value in r1)
+alrm_isr_done:
+        pop     {pc}                           @ Pop the link register from the stack to the program counter - return from the interrupt service
+
+
+
+
+
+
+
 .align 4
 msg:    .asciz "Hello World!\n"
 
 .data
-lstate: .word   DFLT_STATE_STRT
-ltimer: .word   DFLT_ALARM_TIME
+lstate:        .word   DFLT_STATE_STRT
+ltimer:        .word   DFLT_ALARM_TIME
+enable_state:  .word   1                       @ To toggle current state of LED based on the previous alarm interrupt enable value
