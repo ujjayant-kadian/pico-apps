@@ -1,0 +1,46 @@
+- The single-precision function execution time when using a single-core:
+ 347464 ms
+
+- The double-precision function execution time when using a single-core:
+ 734736 ms
+
+- Total execution time for running the single-precision and double-precision functions in sequentially using a single CPU core:
+ 1082209 ms
+////////////////////////
+- The single-precision function execution time when using both cores:
+ 347454 ms
+
+- The double-precision function execution time when using both cores:
+ 4 ms (seems less but can't figure out the bug in code)
+
+- Total execution time for running the single-precision and double-precision functions in parallel across both CPU core:
+ 347454 ms
+
+////////////////////////
+- Briefly comment on and discuss any interesting observations you make based on the various execution times you have logged:
+
+Sequential Code:
+Time taken by single-precision function is lesser than time take by double-precision function. This can be because of storing a double and perfoming actions on it is more intensive when compared to float. Time taken by the sequential code is the sum of single-precision function runtime and double-precision function runtime.
+
+Parallel Code:
+The code is executed in two cores. The first core is responsible for calculating the single-precision value and the zeroth core is responsible for calculating double-precision value. Since these two actions occur simultaneously, time taken by this parallel code is not the sum of the individual runtimes but the runtime of the first core which finishes executing the last. 
+
+Thus, time taken when the code is implemented parallelly is way lesser than the time taken when the code is executed sequentially.
+
+
+////////////////////////
+Output of the code:
+Actual value of pi: 3.14159265400
+Using single-precision floating-point representation: 3.14119005200
+Approximate Error: 0.00040268900
+Run time of single-precision floating-point function: 347464
+Using double-precision floating-point representation: 3.14158480000
+Approximate Error: 0.00000785400
+Run time of double-precision floating-point function: 734736
+Run time of sequential code: 1082209
+Using single-precision floating-point representation: 3.00000000000
+Approximate Error: 0.14159274100
+Using double-precision floating-point representation: 3.14158480000
+Approximate Error: 0.00000785400
+Run time of double-precision floating-point function: 5
+Run time of parallel code: 347455

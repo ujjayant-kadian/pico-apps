@@ -25,3 +25,7 @@ add_subdirectory(assignments)
 add_subdirectory(examples)
 add_subdirectory(labs)
 add_subdirectory(tools/picoprobe)
+
+
+# pico_enable_stdio_usb(lab06 0)
+# pico_enable_stdio_uart(lab06 1)
