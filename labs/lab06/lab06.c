@@ -104,7 +104,7 @@ int main() {
     printf("Run time of double-precision floating-point function: %lld\n", wallis_double_runtime);
     printf("Run time of sequential code: %lld\n", sequential_runtime);
 
-    // Code for parallel run goes hereâ€¦
+    // Code for parallel run goes here
     //    Take snapshot of timer and store
     //    Run the single-precision Wallis approximation on one core
     //    Run the double-precision Wallis approximation on the other core
